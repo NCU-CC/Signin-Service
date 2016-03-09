@@ -1,0 +1,16 @@
+server:
+  port: 8181
+spring:
+  application:
+    name: signin
+  profiles:
+    active: production
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  level:
+    org.springframework.boot.context.web.ErrorPageFilter: OFF
