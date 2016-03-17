@@ -29,4 +29,8 @@ class ActivityServiceImpl implements ActivityService {
         activityRepository.findByCreatorIdOrderByDateCreatedDesc( creatorId, pageable )
     }
 
+    @Override
+    void delete( Activity activity ) {
+        activityRepository.delete( activity.id )
+    }
 }
