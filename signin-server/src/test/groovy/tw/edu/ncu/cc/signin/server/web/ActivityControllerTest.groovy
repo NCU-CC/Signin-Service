@@ -4,6 +4,7 @@ import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
 import specification.IntegrationSpecification
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -54,6 +55,42 @@ class ActivityControllerTest extends IntegrationSpecification {
                     get( targetURL + "/SID0" ).with( accessToken().user( "USER1" ).scope( "test" ) )
             ).andExpect(
                     status().isNotFound()
+            )
+    }
+
+    @Transactional
+    def "user can delete activity with its signins by seiral id"() {
+        when:
+            server().perform(
+                    delete( targetURL + "/SID1" ).with( accessToken().user( "USER1" ).scope( "test" ) )
+            ).andExpect(
+                    status().isNoContent()
+            )
+        then:
+            server().perform(
+                    get( targetURL + "/SID1/sign_in" ).with( accessToken().user( "USER1" ).scope( "test" ) )
+            ).andExpect(
+                    status().isNotFound()
+            )
+    }
+
+    @Transactional
+    def "user cannot delete activity with its signins by seiral id when activity not exist"() {
+        expect:
+            server().perform(
+                    delete( targetURL + "/SID00" ).with( accessToken().user( "USER1" ).scope( "test" ) )
+            ).andExpect(
+                    status().isNotFound()
+            )
+    }
+
+    @Transactional
+    def "user cannot delete activity with its signins by seiral id when user is not creator"() {
+        expect:
+            server().perform(
+                    delete( targetURL + "/SID1" ).with( accessToken().user( "USER2" ).scope( "test" ) )
+            ).andExpect(
+                    status().isForbidden()
             )
     }
 
