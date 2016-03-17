@@ -5,11 +5,15 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 import specification.SpringSpecification
 import tw.edu.ncu.cc.signin.server.model.Activity
+import tw.edu.ncu.cc.signin.server.model.SigninRepository
 
 class ActivityServiceImplTest extends SpringSpecification {
 
     @Autowired
-    private ActivityService activityService
+    ActivityService activityService
+
+    @Autowired
+    SigninRepository signinRepository
 
     @Transactional
     def "it can create activity"() {
@@ -41,5 +45,15 @@ class ActivityServiceImplTest extends SpringSpecification {
         then:
             activities.size() == 1
             activities[0].creatorId == "USER1"
+    }
+
+    @Transactional
+    def "it can delete activities with its signins"() {
+        given:
+            def activity = activityService.findBySerialId( "SID1" )
+        when:
+            activityService.delete( activity )
+        then:
+            signinRepository.findByActivitySerialIdOrderByDateCreatedDesc( activity.serialId, new PageRequest( 0, 20 ) ).content.size() == 0
     }
 }

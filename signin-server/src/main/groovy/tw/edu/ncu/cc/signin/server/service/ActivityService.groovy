@@ -8,4 +8,5 @@ interface ActivityService {
     Activity create( Activity activity )
     Activity findBySerialId(String serialId)
     Page< Activity > findAllByCreatorId( String creatorId, Pageable pageable )
+    void delete( Activity activity )
 }
