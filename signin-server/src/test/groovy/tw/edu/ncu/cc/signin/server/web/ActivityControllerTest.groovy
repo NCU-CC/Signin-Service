@@ -7,6 +7,7 @@ import specification.IntegrationSpecification
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import static tw.edu.ncu.cc.oauth.resource.test.ApiAuthMockMvcRequestPostProcessors.accessToken
 
@@ -28,7 +29,7 @@ class ActivityControllerTest extends IntegrationSpecification {
         then:
             response.content.size() == 1
             response.content[0].name == "ACT1"
-            response.content[0].serialId == "SID1"
+            response.content[0].id == "SID1"
             response.content[0].creatorId == "USER1"
     }
 
@@ -43,7 +44,7 @@ class ActivityControllerTest extends IntegrationSpecification {
                     ).andReturn()
             )
         then:
-            response.serialId == "SID1"
+            response.id == "SID1"
             response.creatorId == "USER1"
             response.name == "ACT1"
     }
@@ -95,6 +96,51 @@ class ActivityControllerTest extends IntegrationSpecification {
     }
 
     @Transactional
+    def "user can update activity"() {
+        when:
+            def response = JSON(
+                    server().perform(
+                            put( targetURL + "/SID1" )
+                                    .with( accessToken().user( "USER1" ).scope( "test" ) )
+                                    .contentType( MediaType.APPLICATION_JSON )
+                                    .content(
+                                    """
+                                    {
+                                        "name":"TESTUPDATE",
+                                        "date_started":"2016-01-01",
+                                        "date_ended":"2016-01-01"
+                                    }
+                                    """
+                            )
+                    ).andExpect(
+                            status().isOk()
+                    ).andReturn()
+            )
+        then:
+            response.name == "TESTUPDATE"
+    }
+
+    @Transactional
+    def "user cannot update activity with its signins by seiral id when user is not creator"() {
+        expect:
+            server().perform(
+                    put( targetURL + "/SID1" ).with( accessToken().user( "USER2" ).scope( "test" ) )
+                            .contentType( MediaType.APPLICATION_JSON )
+                            .content(
+                                    """
+                                    {
+                                        "name":"newname",
+                                        "date_started":"2016-01-01",
+                                        "date_ended":"2016-01-01"
+                                    }
+                                    """
+                            )
+            ).andExpect(
+                    status().isForbidden()
+            )
+    }
+
+    @Transactional
     def "user can create new activity"() {
         when:
             def response = JSON(
@@ -116,7 +162,7 @@ class ActivityControllerTest extends IntegrationSpecification {
                     ).andReturn()
             )
         then:
-            response.serialId != null
+            response.id != null
             response.creatorId == "USER1"
     }
 

@@ -6,6 +6,7 @@ import tw.edu.ncu.cc.signin.server.model.Activity
 
 interface ActivityService {
     Activity create( Activity activity )
+    Activity update( Activity activity )
     Activity findBySerialId(String serialId)
     Page< Activity > findAllByCreatorId( String creatorId, Pageable pageable )
     void delete( Activity activity )

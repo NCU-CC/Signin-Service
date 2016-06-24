@@ -86,6 +86,30 @@ public class ActivityController {
         activityService.delete( activity )
     }
 
+    @RequestMapping( value = "{serial_id}", method = RequestMethod.PUT )
+    def update( @PathVariable( "serial_id" ) final String serialId, @RequestBody final ActivityObject activityObject,  Authentication authentication ) {
+
+        def activity = activityService.findBySerialId( serialId )
+
+        if( activity == null ) {
+            throw new HttpServerErrorException( HttpStatus.NOT_FOUND, "required resource is not found" )
+        }
+
+        if( activity.creatorId != authentication.name ) {
+            throw new HttpServerErrorException( HttpStatus.FORBIDDEN, "required operation not allowed for anybody except creator" )
+        }
+
+        activity.name = activityObject.name
+        activity.dateStarted = activityObject.dateStarted
+        activity.dateEnded = activityObject.dateEnded
+
+        def updatedActivity = activityService.update( activity )
+
+        conversionService.convert(
+                updatedActivity, ActivityObject.class
+        )
+    }
+
     @ResponseStatus( HttpStatus.CREATED )
     @RequestMapping( method = RequestMethod.POST )
     def create( @Validated @RequestBody final ActivityObject activityObject, BindingResult bindingResult, Authentication authentication ) {
