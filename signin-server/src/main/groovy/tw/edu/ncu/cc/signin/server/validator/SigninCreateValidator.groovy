@@ -15,7 +15,7 @@ public class SigninCreateValidator implements Validator {
 
     @Override
     public void validate( Object target, Errors errors ) {
-        ValidationUtils.rejectIfEmpty( errors, "user_id", "user_id.necessary", "user_id is necessary" )
+        ValidationUtils.rejectIfEmpty( errors, "userId", "userId.necessary", "userId is necessary" )
     }
 
 }

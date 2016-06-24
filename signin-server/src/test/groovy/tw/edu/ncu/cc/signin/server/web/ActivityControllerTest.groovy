@@ -193,12 +193,12 @@ class ActivityControllerTest extends IntegrationSpecification {
                     server().perform(
                             post( targetURL + "/SID1/sign_in" )
                                 .with( accessToken().user( "USER1" ).scope( "test" ) )
-                    ).andExpect(
-                            status().isOk()
+                                    .contentType( MediaType.APPLICATION_JSON )
+                                    .content( '{ "userId" : "UID00" }' )
                     ).andReturn()
             )
         then:
-            response.userId == "USER1"
+            response.userId == "UID00"
     }
 
     @Transactional
@@ -207,6 +207,8 @@ class ActivityControllerTest extends IntegrationSpecification {
             server().perform(
                     post( targetURL + "/SID00/sign_in" )
                         .with( accessToken().user( "USER1" ).scope( "test" ) )
+                            .contentType( MediaType.APPLICATION_JSON )
+                            .content( '{ "userId" : "UID00" }' )
             ).andExpect(
                     status().isNotFound()
             )
