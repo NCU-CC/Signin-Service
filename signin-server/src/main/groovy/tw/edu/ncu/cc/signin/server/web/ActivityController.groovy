@@ -22,6 +22,7 @@ import tw.edu.ncu.cc.signin.server.model.Activity
 import tw.edu.ncu.cc.signin.server.validator.ActivityCreateValidator
 import tw.edu.ncu.cc.signin.data.v1.SigninObject
 import tw.edu.ncu.cc.signin.server.model.Signin
+import tw.edu.ncu.cc.signin.server.validator.SigninCreateValidator
 
 @RestController
 @RequestMapping( value = "v1/activities" )
@@ -36,9 +37,14 @@ public class ActivityController {
     @Autowired
     def SigninService signinService
 
-    @InitBinder
-    public static void initBinder( WebDataBinder binder ) {
-        binder.addValidators( new ActivityCreateValidator() )
+    @InitBinder( "activityObject" )
+    public static void initActivityBinder( WebDataBinder binder ) {
+        binder.setValidator( new ActivityCreateValidator() )
+    }
+
+    @InitBinder( "signinObject" )
+    public static void initSigninBinder( WebDataBinder binder ) {
+        binder.setValidator( new SigninCreateValidator() )
     }
 
     @RequestMapping( method = RequestMethod.GET )
@@ -86,6 +92,30 @@ public class ActivityController {
         activityService.delete( activity )
     }
 
+    @RequestMapping( value = "{serial_id}", method = RequestMethod.PUT )
+    def update( @PathVariable( "serial_id" ) final String serialId, @RequestBody final ActivityObject activityObject,  Authentication authentication ) {
+
+        def activity = activityService.findBySerialId( serialId )
+
+        if( activity == null ) {
+            throw new HttpServerErrorException( HttpStatus.NOT_FOUND, "required resource is not found" )
+        }
+
+        if( activity.creatorId != authentication.name ) {
+            throw new HttpServerErrorException( HttpStatus.FORBIDDEN, "required operation not allowed for anybody except creator" )
+        }
+
+        activity.name = activityObject.name
+        activity.dateStarted = activityObject.dateStarted
+        activity.dateEnded = activityObject.dateEnded
+
+        def updatedActivity = activityService.update( activity )
+
+        conversionService.convert(
+                updatedActivity, ActivityObject.class
+        )
+    }
+
     @ResponseStatus( HttpStatus.CREATED )
     @RequestMapping( method = RequestMethod.POST )
     def create( @Validated @RequestBody final ActivityObject activityObject, BindingResult bindingResult, Authentication authentication ) {
@@ -107,7 +137,11 @@ public class ActivityController {
     }
 
     @RequestMapping( value = "{serial_id}/sign_in", method = RequestMethod.POST )
-    def doSignin( @PathVariable( "serial_id" ) final String serialId, Authentication authentication ) {
+    def doSignin( @PathVariable( "serial_id" ) final String serialId, @Validated @RequestBody final SigninObject signinObject, BindingResult bindingResult ) {
+
+        if( bindingResult.hasErrors() ) {
+            throw new BindException( bindingResult )
+        }
 
         def activity = activityService.findBySerialId( serialId )
 
@@ -115,7 +149,7 @@ public class ActivityController {
             throw new HttpServerErrorException( HttpStatus.NOT_FOUND, "required resource is not found" )
         }
 
-        def signin = signinService.create( authentication.name, activity )
+        def signin = signinService.create( signinObject.userId, activity )
 
         conversionService.convert(
                 signin, SigninObject.class

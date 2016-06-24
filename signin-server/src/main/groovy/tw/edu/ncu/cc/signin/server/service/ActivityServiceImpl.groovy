@@ -20,6 +20,11 @@ class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    Activity update( Activity activity ) {
+        activityRepository.save( activity )
+    }
+
+    @Override
     Activity findBySerialId( String serialId ) {
         activityRepository.findBySerialId( serialId )
     }

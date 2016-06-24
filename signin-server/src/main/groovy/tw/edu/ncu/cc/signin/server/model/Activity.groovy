@@ -30,6 +30,9 @@ class Activity implements Serializable {
     @Temporal( value = TemporalType.TIMESTAMP )
     def Date dateCreated
 
+    @Temporal( value = TemporalType.TIMESTAMP )
+    def Date dateUpdated
+
     @OneToMany( mappedBy = "activity", cascade = [ CascadeType.REMOVE ] )
     @OrderBy( "date_created desc" )
     def List< Signin > signins = new LinkedList<>()
@@ -37,6 +40,11 @@ class Activity implements Serializable {
     @PrePersist
     protected void onCreate() {
         dateCreated = new Date()
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        dateUpdated = new Date()
     }
 
 }

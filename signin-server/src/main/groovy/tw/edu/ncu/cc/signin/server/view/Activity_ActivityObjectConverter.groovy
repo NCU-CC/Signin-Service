@@ -11,11 +11,12 @@ class Activity_ActivityObjectConverter implements Converter< Activity, ActivityO
     @Override
     ActivityObject convert(Activity source ) {
         ActivityObject activityObject = new ActivityObject();
-        activityObject.serialId = source.serialId
+        activityObject.id = source.serialId
         activityObject.name = source.name
         activityObject.dateStarted = source.dateStarted
         activityObject.dateEnded = source.dateEnded
         activityObject.dateCreated = source.dateCreated
+        activityObject.dateUpdated = source.dateUpdated
         activityObject.creatorId = source.creatorId
         activityObject
     }

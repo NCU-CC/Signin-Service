@@ -30,6 +30,21 @@ class ActivityServiceImplTest extends SpringSpecification {
     }
 
     @Transactional
+    def "it can update activity"() {
+        given:
+            def activity = activityService.findBySerialId( "SID1" )
+        when:
+            activity.name = "test name"
+        and:
+            activityService.update( activity )
+        then:
+            def activityDb = activityService.findBySerialId( "SID1" )
+        and:
+            activityDb.dateUpdated != null
+            activityDb.name == "test name"
+    }
+
+    @Transactional
     def "it can find activity by serial id"() {
         when:
             def activity = activityService.findBySerialId( "SID1" )
