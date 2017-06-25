@@ -26,7 +26,7 @@ public class SecurityConfig {
         protected void configure( HttpSecurity http ) throws Exception {
             http.requestMatchers()
                     .antMatchers( HttpMethod.POST, "/v*/activities/**" )
-                    .antMatchers( HttpMethod.GET, "/v*/activities/**" )
+                    .antMatchers( HttpMethod.GET, "/v*/activities", "/v*/activities/*", "/v*/activities/*/")
                     .antMatchers( HttpMethod.PUT, "/v*/activities/**" )
                     .antMatchers( HttpMethod.DELETE, "/v*/activities/**" )
                     .and()

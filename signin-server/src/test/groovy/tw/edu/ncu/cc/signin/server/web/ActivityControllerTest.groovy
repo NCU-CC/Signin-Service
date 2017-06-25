@@ -50,6 +50,16 @@ class ActivityControllerTest extends IntegrationSpecification {
     }
 
     @Transactional
+    def "user cannot get activity information by seiral id if no access token"() {
+        expect:
+            server().perform(
+                    get( targetURL + "/SID1/" )
+            ).andExpect(
+                    status().isBadRequest()
+            ).andReturn()
+    }
+
+    @Transactional
     def "user cannot get activity information by seiral id if not exist"() {
         expect:
             server().perform(
@@ -215,12 +225,11 @@ class ActivityControllerTest extends IntegrationSpecification {
     }
 
     @Transactional
-    def "user can get signin lists"() {
+    def "everyone can get signin lists"() {
         when:
             def response = JSON(
                     server().perform(
                             get( targetURL + "/SID1/sign_in" )
-                                .with( accessToken().user( "USER1" ).scope( "test" ) )
                     ).andExpect(
                             status().isOk()
                     ).andReturn()
